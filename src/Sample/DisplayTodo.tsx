@@ -3,7 +3,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState   } from '../store/store';  //? state of type RootState
 import { editTodo, removeTodo, toggleTodo } from '../slices/todoSlice`';
 import { useState } from 'react';
-
+import { MdModeEdit } from "react-icons/md";
+import { AiTwotoneDelete } from "react-icons/ai";
+import { FaChevronRight } from "react-icons/fa6";
+import { ToastContainer, toast } from 'react-toastify';
 
 
 const DisplayTodo:React.FC = () => {
@@ -20,11 +23,31 @@ const DisplayTodo:React.FC = () => {
     const handleEdit = (todo:{id:string,text:string}) => {  //? specify wht type of data will be in todo
         setEdited(!edited);
         setCurrentTodo(todo);
+        toast.warn('Editing task', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            });
     }
 
     const handleSubmit = (e:React.FormEvent) => {
         e.preventDefault();
         dispatch(editTodo(currentTodo));
+        toast.success('Updating task', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            });
         setEdited(!edited);
     }
 
@@ -34,7 +57,7 @@ const DisplayTodo:React.FC = () => {
         <h2>Display Todo</h2>
         <ul>
             {
-                todoList && todoList.map((todo) => (
+                todoList.length >= 1 ? todoList.map((todo) => (
                     //? on edit insted of list item display form to edit
                     edited &&  currentTodo.id === todo.id ? (
                         <form onSubmit={handleSubmit}>
@@ -45,20 +68,25 @@ const DisplayTodo:React.FC = () => {
                                 value={currentTodo.text}
                                 onChange={(e) => setCurrentTodo({...currentTodo,text:e.target.value})}
                                 />
-                            <button type="submit">Save</button>
+                            <button type="submit"><FaChevronRight />
+                            </button>
                         </form>
                     ):
-                    <li key={todo.id} style={{textDecoration: todo.completed ? 'line-through' : 'none'}}>
+                    <li key={todo.id}>
                         <input type="checkbox" 
                             name="isCompleted" id="isCompleted" 
                             checked = {todo.completed}
                             onChange={() => dispatch(toggleTodo(todo.id))}
                         /> 
-                        <p>{todo.text}</p>
-                        <button onClick={() => handleEdit(todo)}>Edit</button>
-                        <button onClick={() => dispatch(removeTodo(todo.id))}>Delete</button>      
+                        <p  style={{textDecoration: todo.completed ? 'line-through' : 'none'}}>{todo.text.substring(0,10)}</p>
+                        <button  id='edit' onClick={() => handleEdit(todo)}><MdModeEdit /></button>
+                        <button id='delete' onClick={() => dispatch(removeTodo(todo.id) )}><AiTwotoneDelete />
+                        </button>      
                     </li>   
                 ))
+            : <li>
+                <p>No task to display</p>
+            </li>
             }
         </ul>
     </main>
